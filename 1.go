@@ -42,7 +42,11 @@ func main() {
 	//var message Message
 	json.Unmarshal([]byte(redditposts), &message)
 	//pretty.Println(message)
-	pretty.Println(message["data"].(map[string]interface{})["children"].([]interface{})[0].(map[string]interface{})["data"].(map[string]interface{})["preview"].(map[string]interface{})["images"].([]interface{})[0].(map[string]interface{})["source"].(map[string]interface{})["url"])
+	posts := message["data"].(map[string]interface{})["children"].([]interface{})
+	for count := range posts {
+		pretty.Println(posts[count].(map[string]interface{})["data"].(map[string]interface{})["preview"].(map[string]interface{})["images"].([]interface{})[0].(map[string]interface{})["source"].(map[string]interface{})["url"])
+	}
+	//	pretty.Println(message["data"].(map[string]interface{})["children"].([]interface{})[0].(map[string]interface{})["data"].(map[string]interface{})["preview"].(map[string]interface{})["images"].([]interface{})[0].(map[string]interface{})["source"].(map[string]interface{})["url"])
 	//things := result["data"].(map[string]interface{})
 	/*
 		for key, value := range result {
