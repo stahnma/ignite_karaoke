@@ -100,16 +100,19 @@ func grab20(pics []string) []string {
 
 func main() {
 	var base string
-	base = "https://www.reddit.com/r/disneyvacation"
-	base = "https://www.reddit.com/r/FunnyStockPics"
-	suffixes := []string{"/.json?limit=100", "/top/.json?limit=100", "/new/.json?limit=100", "/top/.json?sort=top&t=month&limit=100", "/top/.json?sort=top&t=all&limit=100"}
-	//	suffixes := []string{"/.json?limit=10"}
+	var suffixes []string
 	var pics []string
-	for _, suf := range suffixes {
-		//pretty.Println(suf)
-		uri := base + suf
-		//pretty.Println("URI is " + uri)
-		pics = append(pics, get_the_pics(uri)...)
+	base = "https://www.reddit.com/r/"
+	subreddits := []string{"funnystockpics", "wtfstockphotos", "earthporn", "disneyvacation"}
+	//suffixes = []string{"/.json?limit=100", "/top/.json?limit=100", "/new/.json?limit=100", "/top/.json?sort=top&t=month&limit=100", "/top/.json?sort=top&t=all&limit=100"}
+	suffixes = []string{"/.json?limit=100"}
+	for _, sub := range subreddits {
+		for _, suf := range suffixes {
+			//pretty.Println(suf)
+			uri := base + sub + suf
+			//pretty.Println("URI is " + uri)
+			pics = append(pics, get_the_pics(uri)...)
+		}
 	}
 	pics = dedupe(pics)
 	//fmt.Println(len(pics))
