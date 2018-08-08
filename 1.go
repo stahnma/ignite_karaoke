@@ -3,54 +3,34 @@ package main
 // .data.children[0].data.preview.images[0].source.url
 
 import (
-	"encoding/json"
+	//	"encoding/json"
+	//	"byte"
 	//	"fmt"
 	"github.com/kr/pretty"
+	"github.com/savaki/jq"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
 const uri = "https://www.reddit.com/r/wtfstockphotos/.json"
 
-/*
-type Message struct {
-	Uri string `json:"uri"`
-}
-
-type Bucket struct {
-	data    map[string]interface{} `json:"data"`
-	Message Message
-}
-*/
+//const uri = "https://www.reddit.com/r/predators/.json"
 
 func main() {
 	client := &http.Client{}
-	request, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	request, _ := http.NewRequest("GET", uri, nil)
 	request.Header.Set("User-Agent", "[stuff]")
-	resp, err := client.Do(request)
-
-	redditposts, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
+	resp, _ := client.Do(request)
+	redditposts, _ := ioutil.ReadAll(resp.Body)
+	//	for k, _ := range redditposts {
+	//	pretty.Println(k)
+	//op, _ := jq.Parse(".data.children.[" + k.(string) + "].data.preview.images.[0].source.url")
+	//	op, _ := jq.Parse(".data.children.[1].data.preview.images.[0].source.url")
+	op, _ := jq.Parse(".data.children")
+	value, _ := op.Apply(redditposts)
+	for count, _ := range value {
+		pretty.Println(count)
 	}
-	//fmt.Printf("%s", redditposts)
-	var message map[string]interface{}
-	//var message Message
-	json.Unmarshal([]byte(redditposts), &message)
-	//pretty.Println(message)
-	posts := message["data"].(map[string]interface{})["children"].([]interface{})
-	for count := range posts {
-		pretty.Println(posts[count].(map[string]interface{})["data"].(map[string]interface{})["preview"].(map[string]interface{})["images"].([]interface{})[0].(map[string]interface{})["source"].(map[string]interface{})["url"])
-	}
-	//	pretty.Println(message["data"].(map[string]interface{})["children"].([]interface{})[0].(map[string]interface{})["data"].(map[string]interface{})["preview"].(map[string]interface{})["images"].([]interface{})[0].(map[string]interface{})["source"].(map[string]interface{})["url"])
-	//things := result["data"].(map[string]interface{})
-	/*
-		for key, value := range result {
-			fmt.Println(key, value.(string))
-		}
-	*/
+	//pretty.Println(string(value))
+	//	}
 }
