@@ -3,16 +3,15 @@ package main
 // .data.children[0].data.preview.images[0].source.url
 
 import (
-	//	"encoding/json"
-	//	"byte"
-	//	"fmt"
+	"encoding/json"
+	"github.com/jmoiron/jsonq"
 	"github.com/kr/pretty"
-	"github.com/savaki/jq"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
-const uri = "https://www.reddit.com/r/wtfstockphotos/.json"
+const uri = "https://www.reddit.com/r/wtfstockphotos/.json?limit=100"
 
 //const uri = "https://www.reddit.com/r/predators/.json"
 
@@ -22,15 +21,21 @@ func main() {
 	request.Header.Set("User-Agent", "[stuff]")
 	resp, _ := client.Do(request)
 	redditposts, _ := ioutil.ReadAll(resp.Body)
-	//	for k, _ := range redditposts {
-	//	pretty.Println(k)
-	//op, _ := jq.Parse(".data.children.[" + k.(string) + "].data.preview.images.[0].source.url")
-	//	op, _ := jq.Parse(".data.children.[1].data.preview.images.[0].source.url")
-	op, _ := jq.Parse(".data.children")
-	value, _ := op.Apply(redditposts)
-	for count, _ := range value {
-		pretty.Println(count)
+	data := map[string]interface{}{}
+	dec := json.NewDecoder(strings.NewReader(string(redditposts)))
+	dec.Decode(&data)
+	jq := jsonq.NewQuery(data)
+	posts, err := jq.ArrayOfObjects("data", "children")
+	if err != nil {
+		pretty.Println(err)
 	}
-	//pretty.Println(string(value))
-	//	}
+	for _, val := range posts {
+		jq = jsonq.NewQuery(val)
+		pics, err := jq.String("data", "preview", "images", "0", "source", "url")
+		if err != nil {
+			continue
+		}
+		pretty.Println(pics)
+	}
+
 }
