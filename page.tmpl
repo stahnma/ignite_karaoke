@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+   <head>
+      <title>Ignite Karaoke</title>
+      <script type = "text/javascript">
+          function displayNextImage() {
+              x = (x === images.length - 1) ? 0 : x + 1;
+              document.getElementById("img").src = images[x];
+          }
+
+          function displayPreviousImage() {
+              x = (x <= 0) ? images.length - 1 : x - 1;
+              document.getElementById("img").src = images[x];
+          }
+
+          function startTimer() {
+              setInterval(displayNextImage, 3000);
+          }
+
+          var images = [], x = -1;
+         {{ range $key , $value := . }}
+             images[{{$key}}] = "{{.}}";
+         {{end}}
+      </script>
+ <style>
+  * {
+   margin: 0;
+   padding: 0;
+  }
+  .imgbox {
+   display: grid;
+   height: 100%;
+  }
+  .center-fit {
+   max-width: 100%;
+   max-height: 100vh; margin: auto;
+  }
+  </style>
+   </head>
+
+   <body onload = "startTimer()">
+ <div class="imgbox">
+       <!-- need a welcome photo -->
+       <img class="center-fit" id="img" src="https://www.devopsdays.org/events/2017-madison/logo@2x.png"/>
+</div>
+       <button type="button" onclick="displayPreviousImage()">Previous</button>
+       <button type="button" onclick="displayNextImage()">Next</button>
+   </body>
+</html>
