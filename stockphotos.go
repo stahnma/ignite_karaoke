@@ -12,21 +12,19 @@ package main
 // jq format .data.children[0].data.preview.images[0].source.url
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/jmoiron/jsonq"
 	"github.com/kr/pretty"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"strings"
 	"text/template"
 	"time"
 )
-
-//const uri = "https://www.reddit.com/r/wtfstockphotos/.json?limit=100"
-
-//const uri = "https://www.reddit.com/r/predators/.json"
 
 func dedupe(a []string) []string {
 	result := []string{}
@@ -103,9 +101,10 @@ func main() {
 	var suffixes []string
 	var pics []string
 	base = "https://www.reddit.com/r/"
+	//subreddits := []string{"funnystockpics"}
 	subreddits := []string{"funnystockpics", "wtfstockphotos", "earthporn", "disneyvacation"}
-	//suffixes = []string{"/.json?limit=100", "/top/.json?limit=100", "/new/.json?limit=100", "/top/.json?sort=top&t=month&limit=100", "/top/.json?sort=top&t=all&limit=100"}
-	suffixes = []string{"/.json?limit=100"}
+	suffixes = []string{"/.json?limit=100", "/top/.json?limit=100", "/new/.json?limit=100", "/top/.json?sort=top&t=month&limit=100", "/top/.json?sort=top&t=all&limit=100"}
+	//suffixes = []string{"/.json?limit=100"}
 	for _, sub := range subreddits {
 		for _, suf := range suffixes {
 			//pretty.Println(suf)
@@ -115,17 +114,27 @@ func main() {
 		}
 	}
 	pics = dedupe(pics)
-	//fmt.Println(len(pics))
 
 	the20 := grab20(pics)
 
-	tmpl := template.New("test")
+	tmpl := template.New("page.tmpl")
 	tmpl, err := tmpl.ParseFiles("page.tmpl")
 	if err != nil {
+		pretty.Println("Running ParseFiles")
 		pretty.Println(err)
 	}
-	err = tmpl.ExecuteTemplate(os.Stdout, "page.tmpl", the20)
-	if err != nil {
+
+	var tpl bytes.Buffer
+	if err := tmpl.Execute(&tpl, the20); err != nil {
+		pretty.Println("Trying to execute template.")
 		pretty.Println(err)
 	}
+	html := tpl.String()
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, html)
+	})
+
+	log.Fatal(http.ListenAndServe(":7500", nil))
+
 }
