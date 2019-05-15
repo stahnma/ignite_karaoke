@@ -1,12 +1,8 @@
 package main
 
-//TODO
-// * Ensure image isn't a 404
+//TODO // * Ensure image isn't a 404
 // * Check if there are any NSFW markers and remove those
-// * Allow support for mulitple subreddits
 // * Allow control/start/stop/pause
-// * Servce in golang and not python
-// * Single binary
 // * CLI arguments or env vars for which subreddits
 
 // jq format .data.children[0].data.preview.images[0].source.url
@@ -101,14 +97,14 @@ func main() {
 	var suffixes []string
 	var pics []string
 	base = "https://www.reddit.com/r/"
-	//subreddits := []string{"funnystockpics"}
-	subreddits := []string{"funnystockpics", "wtfstockphotos", "earthporn", "disneyvacation"}
+	subreddits := []string{"funnystockpics"}
+	//subreddits := []string{"funnystockpics", "wtfstockphotos", "earthporn", "disneyvacation"}
 	suffixes = []string{"/.json?limit=100", "/top/.json?limit=100", "/new/.json?limit=100", "/top/.json?sort=top&t=month&limit=100", "/top/.json?sort=top&t=all&limit=100"}
 	//suffixes = []string{"/.json?limit=100"}
 	for _, sub := range subreddits {
 		for _, suf := range suffixes {
 			//pretty.Println(suf)
-			uri := base + sub + suf
+			uri := base + sub + suf + "&raw_json=1"
 			//pretty.Println("URI is " + uri)
 			pics = append(pics, get_the_pics(uri)...)
 		}
@@ -135,6 +131,7 @@ func main() {
 		fmt.Fprintf(w, html)
 	})
 
+	fmt.Println("Serving on :7500")
 	log.Fatal(http.ListenAndServe(":7500", nil))
 
 }
